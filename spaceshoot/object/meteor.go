@@ -64,7 +64,7 @@ func NewMeteor(screenW, screenH int) game.Object {
 	}
 }
 
-func (m *Meteor) Update() {
+func (m *Meteor) Update(_ *game.World) {
 	m.position.X += m.movement.X
 	m.position.Y += m.movement.Y
 	m.rotation += m.rotationSpeed
@@ -84,4 +84,15 @@ func (m *Meteor) Draw(screen *ebiten.Image) {
 	op.GeoM.Translate(m.position.X, m.position.Y)
 
 	screen.DrawImage(m.sprite, op)
+}
+
+func (m *Meteor) Rect() game.Rect {
+	bounds := m.sprite.Bounds()
+
+	return game.NewRect(
+		m.position.X,
+		m.position.Y,
+		float64(bounds.Dx()),
+		float64(bounds.Dy()),
+	)
 }

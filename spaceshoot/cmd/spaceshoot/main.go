@@ -20,7 +20,14 @@ func main() {
 	g := game.NewWorld(
 		ScreenWidth,
 		ScreenHeight,
-		object.NewPlayer(assets.Player, ScreenWidth, ScreenHeight),
+		func(screenW, screenH int) game.Object {
+			return object.NewPlayer(
+				screenW,
+				screenH,
+				assets.Player,
+				500*time.Millisecond,
+			)
+		},
 		object.NewMeteor,
 		1000*time.Millisecond,
 	)
