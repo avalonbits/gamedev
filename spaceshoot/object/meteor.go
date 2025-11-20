@@ -17,17 +17,17 @@ type Meteor struct {
 	sprite        *ebiten.Image
 }
 
-func NewMeteor(screenW, screenH int) game.Object {
+func NewMeteor(world *game.World) game.Object {
 	sprite := assets.Meteors[rand.IntN(len(assets.Meteors))]
 
 	// Figure out the target position — the screen center, in this case
 	target := vector{
-		X: float64(screenW / 2),
-		Y: float64(screenH / 2),
+		X: float64(world.Width() / 2),
+		Y: float64(world.Height() / 2),
 	}
 
 	// The distance from the center the meteor should spawn at — half the width
-	r := float64(screenW / 2)
+	r := float64(world.Width() / 2)
 
 	// Pick a random angle — 2π is 360° — so this returns 0° to 360°
 	angle := rand.Float64() * 2 * math.Pi

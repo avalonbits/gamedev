@@ -16,7 +16,7 @@ type Object interface {
 	Rect() Rect
 }
 
-type ObjectFactory func(screenW, screenH int) Object
+type ObjectFactory func(world *World) Object
 
 type World struct {
 	screenW          int
@@ -37,15 +37,24 @@ func NewWorld(
 	meteorFn ObjectFactory,
 	meteorSpawn time.Duration,
 ) *World {
-	return &World{
+	world := World{
 		screenW:          screenW,
 		screenH:          screenH,
-		player:           playerFn(screenW, screenH),
 		playerFn:         playerFn,
 		meteorFn:         meteorFn,
 		meteorSpawnTimer: NewTimer(meteorSpawn),
 	}
 
+	world.player = playerFn(&world)
+	return &world
+}
+
+func (w *World) Width() int {
+	return w.screenW
+}
+
+func (w *World) Height() int {
+	return w.screenH
 }
 
 func (w *World) AddBullet(bullet Object) {
@@ -58,7 +67,7 @@ func (w *World) Update() error {
 	w.meteorSpawnTimer.Update()
 	if w.meteorSpawnTimer.IsReady() {
 		w.meteorSpawnTimer.Reset()
-		w.meteors = append(w.meteors, w.meteorFn(w.screenW, w.screenH))
+		w.meteors = append(w.meteors, w.meteorFn(w))
 	}
 
 	for _, m := range w.meteors {
@@ -107,7 +116,7 @@ func (w *World) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeig
 }
 
 func (w *World) Reset() {
-	w.player = w.playerFn(w.screenW, w.screenH)
+	w.player = w.playerFn(w)
 	w.meteors = nil
 	w.bullets = nil
 	w.score = 0

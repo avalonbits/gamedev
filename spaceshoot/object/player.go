@@ -17,14 +17,14 @@ type Player struct {
 	shootCooldown *game.Timer
 }
 
-func NewPlayer(screenW, screenH int, sprite *ebiten.Image, shootCooldown time.Duration) *Player {
+func NewPlayer(world *game.World, sprite *ebiten.Image, shootCooldown time.Duration) *Player {
 	bounds := sprite.Bounds()
 	halfW := float64(bounds.Dx()) / 2
 	halfH := float64(bounds.Dy()) / 2
 
 	pos := vector{
-		X: float64(screenW/2) - halfW,
-		Y: float64(screenH/2) - halfH,
+		X: float64(world.Width()/2) - halfW,
+		Y: float64(world.Height()/2) - halfH,
 	}
 
 	return &Player{
