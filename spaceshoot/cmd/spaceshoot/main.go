@@ -6,7 +6,7 @@ import (
 
 	"github.com/avalonbits/gamedev/spaceshoot/assets"
 	"github.com/avalonbits/gamedev/spaceshoot/game"
-	"github.com/avalonbits/gamedev/spaceshoot/object"
+	"github.com/avalonbits/gamedev/spaceshoot/objects"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -21,13 +21,13 @@ func main() {
 		ScreenWidth,
 		ScreenHeight,
 		func(world *game.World) game.Object {
-			return object.NewPlayer(
+			return objects.NewPlayer(
 				world,
 				assets.Player,
 				350*time.Millisecond,
 			)
 		},
-		object.NewMeteor,
+		objects.NewMeteor,
 		1000*time.Millisecond,
 	)
 
