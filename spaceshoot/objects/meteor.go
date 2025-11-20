@@ -96,3 +96,7 @@ func (m *Meteor) Rect() game.Rect {
 		float64(bounds.Dy()),
 	)
 }
+
+func (m *Meteor) Intersects(bounds game.Bounds) bool {
+	return m.Rect().Intersects(bounds.Rect())
+}

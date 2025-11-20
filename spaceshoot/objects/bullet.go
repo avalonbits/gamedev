@@ -69,3 +69,7 @@ func (b *Bullet) Rect() game.Rect {
 		float64(bounds.Dy()),
 	)
 }
+
+func (b *Bullet) Intersects(bounds game.Bounds) bool {
+	return b.Rect().Intersects(bounds.Rect())
+}

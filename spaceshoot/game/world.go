@@ -10,10 +10,16 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 )
 
+type Bounds interface {
+	Rect() Rect
+	Intersects(Bounds) bool
+}
+
 type Object interface {
+	Bounds
+
 	Update(world *World)
 	Draw(*ebiten.Image)
-	Rect() Rect
 }
 
 type ObjectFactory func(world *World) Object
@@ -80,15 +86,14 @@ func (w *World) Update() error {
 
 	// Check for meteor/bullet collisions
 	for i, m := range w.meteors {
-		meteor := m.Rect()
 		for j, b := range w.bullets {
-			if meteor.Intersects(b.Rect()) {
+			if m.Intersects(b) {
 				w.meteors = append(w.meteors[:i], w.meteors[i+1:]...)
 				w.bullets = append(w.bullets[:j], w.bullets[j+1:]...)
 				w.score++
 			}
 		}
-		if meteor.Intersects(w.player.Rect()) {
+		if m.Intersects(w.player) {
 			w.Reset()
 			break
 		}
@@ -112,15 +117,13 @@ func (w *World) Draw(screen *ebiten.Image) {
 }
 
 func (w *World) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return int(w.screenW), int(w.screenH)
+	return w.screenW, w.screenH
 }
 
 func (w *World) Reset() {
 	w.player = w.playerFn(w)
-	w.meteors = nil
-	w.bullets = nil
+	w.meteors = w.meteors[:0]
+	w.bullets = w.bullets[:0]
 	w.score = 0
 	w.meteorSpawnTimer.Reset()
-	// w.baseVelocity = baseMeteorVelocity
-	// w.velocityTimer.Reset()
 }

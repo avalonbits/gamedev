@@ -62,7 +62,6 @@ func (p *Player) Update(world *game.World) {
 
 		bullet := NewBullet(spawnPos, p.rotation)
 		world.AddBullet(bullet)
-		// Spawn the bullet
 	}
 
 }
@@ -92,4 +91,8 @@ func (p *Player) Rect() game.Rect {
 		float64(bounds.Dx()),
 		float64(bounds.Dy()),
 	)
+}
+
+func (p *Player) Intersects(bounds game.Bounds) bool {
+	return p.Rect().Intersects(bounds.Rect())
 }
