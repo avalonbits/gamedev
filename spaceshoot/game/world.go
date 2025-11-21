@@ -43,6 +43,9 @@ func NewWorld(
 	meteorFn ObjectFactory,
 	meteorSpawn time.Duration,
 ) *World {
+	ebiten.SetWindowTitle("Space Shooter")
+	ebiten.SetWindowSize(screenW, screenH)
+
 	world := World{
 		screenW:          screenW,
 		screenH:          screenH,
