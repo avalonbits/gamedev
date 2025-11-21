@@ -4,6 +4,20 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+type Bounds interface {
+	Rect() Rect
+	Intersects(Bounds) bool
+}
+
+type Object interface {
+	Bounds
+
+	Update(world *World)
+	Draw(*ebiten.Image)
+}
+
+type ObjectFactory func(world *World) Object
+
 type World struct {
 	screenW int
 	screenH int
