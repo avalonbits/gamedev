@@ -5,25 +5,17 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type HiddenItem int
-
-const (
-	NOHTING = iota
-)
-
 type Brick struct {
-	position  vector
-	layers    []*ebiten.Image
-	currLayer int
-	hidden    HiddenItem
+	position vector
+	sprite   *ebiten.Image
+	hitCount int
 }
 
-func NewBrick(x, y int, layers []*ebiten.Image, hidden HiddenItem) game.Object {
+func NewBrick(x, y, hitCount int, sprite *ebiten.Image) game.Object {
 	return &Brick{
-		position:  vector{X: float64(x), Y: float64(y)},
-		layers:    layers,
-		hidden:    hidden,
-		currLayer: len(layers) - 1,
+		position: vector{X: float64(x), Y: float64(y)},
+		sprite:   sprite,
+		hitCount: hitCount,
 	}
 }
 
@@ -31,10 +23,13 @@ func (b *Brick) Update(world *game.World) {
 }
 
 func (b *Brick) Draw(display *ebiten.Image) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(b.position.X, b.position.Y)
+	display.DrawImage(b.sprite, op)
 }
 
 func (b *Brick) Rect() game.Rect {
-	bounds := b.layers[b.currLayer].Bounds()
+	bounds := b.sprite.Bounds()
 
 	return game.NewRect(
 		b.position.X,

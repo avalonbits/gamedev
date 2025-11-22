@@ -21,15 +21,31 @@ type ObjectFactory func(world *World) Object
 type World struct {
 	screenW int
 	screenH int
+	bricks  []Object
 }
 
-func NewWorld(title string, screenW, screenH int) *World {
+func NewWorld(
+	title string,
+	screenW int,
+	screenH int,
+	brickFn ObjectFactory,
+) *World {
 	ebiten.SetWindowTitle(title)
 	ebiten.SetWindowSize(screenW, screenH)
-	return &World{
+
+	w := &World{
 		screenW: screenW,
 		screenH: screenH,
 	}
+	w.bricks = w.createBricks(brickFn)
+
+	return w
+}
+
+func (w *World) createBricks(brickFn ObjectFactory) []Object {
+	bricks := []Object{}
+	bricks = append(bricks, brickFn(w))
+	return bricks
 }
 
 func (w *World) Width() int {
@@ -46,6 +62,9 @@ func (w *World) Update() error {
 }
 
 func (w *World) Draw(screen *ebiten.Image) {
+	for _, brick := range w.bricks {
+		brick.Draw(screen)
+	}
 }
 
 func (w *World) Layout(outsideWidth, outsideHeight int) (width, height int) {
