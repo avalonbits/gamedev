@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	world := game.NewWorld("Breakoout", 1024, 788, func(_ *game.World) game.Object {
+	world := game.NewWorld("Breakoout", 1280, 720, func(_ *game.World) game.Object {
 		return objects.NewBrick(0, 0, 1, assets.Bricks[0])
 	})
 
