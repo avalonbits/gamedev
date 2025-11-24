@@ -11,7 +11,7 @@ type Brick struct {
 	hitCount int
 }
 
-func NewBrick(x, y, hitCount int, sprite *ebiten.Image) game.Object {
+func NewBrick(x, y, hitCount int, sprite *ebiten.Image) *Brick {
 	return &Brick{
 		position: vector{X: float64(x), Y: float64(y)},
 		sprite:   sprite,

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"io/fs"
+	"math"
 
 	_ "image/png"
 
@@ -80,8 +81,10 @@ type Level struct {
 }
 
 type Brick struct {
-	x, y   int
-	sprite *ebiten.Image
+	x, y     int
+	power    int
+	hitCount int
+	sprite   *ebiten.Image
 }
 
 func (b Brick) Position() (int, int) {
@@ -90,6 +93,10 @@ func (b Brick) Position() (int, int) {
 
 func (b Brick) Sprite() *ebiten.Image {
 	return b.sprite
+}
+
+func (b Brick) HitCount() int {
+	return b.hitCount
 }
 
 func (l *Level) Index() int {
@@ -124,6 +131,8 @@ func loadLevels(pattern string) []Level {
 }
 
 func parseBricks(content []byte) []Brick {
+	brickAssets := loadAll("bricks/*.png")
+
 	bricks := make([]Brick, 0, 13*13)
 	cIdx := 0
 	for y := 0; y < 13; y++ {
@@ -136,10 +145,32 @@ func parseBricks(content []byte) []Brick {
 
 			var sprite *ebiten.Image
 			if color > 0 {
-				sprite = Bricks[color-1]
+				sprite = brickAssets[color-1]
 			}
+
+			var hitCount int
+			switch color {
+			case 0:
+				hitCount = math.MaxInt
+			case 6:
+				hitCount = 3
+			default:
+				hitCount = 1
+			}
+
+			pixelX, pixelY := x, y
+			if sprite != nil {
+				pixelX *= sprite.Bounds().Max.X
+				pixelY *= sprite.Bounds().Max.Y
+			}
+			bricks = append(bricks, Brick{
+				x:        pixelX,
+				y:        pixelY,
+				hitCount: hitCount,
+				power:    power,
+				sprite:   sprite,
+			})
 		}
-		fmt.Print("\n")
 	}
 
 	return bricks

@@ -9,9 +9,19 @@ import (
 
 func main() {
 
-	world := game.NewWorld("Breakoout", 1280, 720, func(_ *game.World) game.Object {
-		return objects.NewBrick(0, 0, 1, assets.Bricks[0])
-	})
+	world := game.NewWorld(
+		"Breakoout",
+		1280,
+		720,
+		13*64,
+		16,
+		func(world *game.World) game.Object {
+			return objects.NewPaddle(world, assets.Paddle)
+		},
+		func(_ *game.World) game.Object {
+			return objects.NewBricks(assets.Levels, 16)
+		},
+	)
 
 	if err := ebiten.RunGame(world); err != nil {
 		panic(err)
