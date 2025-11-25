@@ -16,6 +16,9 @@ func main() {
 		13*64,
 		16,
 		func(world *game.World) game.Object {
+			return objects.NewPlayArea(world, assets.DefaultBackground)
+		},
+		func(world *game.World) game.Object {
 			return objects.NewPaddle(world, assets.Paddle)
 		},
 		func(_ *game.World) game.Object {

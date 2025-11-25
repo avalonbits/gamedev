@@ -23,8 +23,7 @@ type World struct {
 	screenH int
 	playW   int
 	margin  int
-	paddle  Object
-	levels  Object
+	objects []Object
 }
 
 func NewWorld(
@@ -33,8 +32,7 @@ func NewWorld(
 	screenH int,
 	playW int,
 	margin int,
-	paddleFn ObjectFactory,
-	levelFn ObjectFactory,
+	objectFn ...ObjectFactory,
 ) *World {
 	ebiten.SetWindowTitle(title)
 	ebiten.SetWindowSize(screenW, screenH)
@@ -45,8 +43,9 @@ func NewWorld(
 		playW:   playW,
 		margin:  margin,
 	}
-	w.paddle = paddleFn(w)
-	w.levels = levelFn(w)
+	for _, fn := range objectFn {
+		w.objects = append(w.objects, fn(w))
+	}
 
 	return w
 }
@@ -68,14 +67,17 @@ func (w *World) Margin() int {
 }
 
 func (w *World) Update() error {
-	w.paddle.Update(w)
+	for _, obj := range w.objects {
+		obj.Update(w)
+	}
 	return nil
 
 }
 
 func (w *World) Draw(screen *ebiten.Image) {
-	w.levels.Draw(screen)
-	w.paddle.Draw(screen)
+	for _, obj := range w.objects {
+		obj.Draw(screen)
+	}
 }
 
 func (w *World) Layout(outsideWidth, outsideHeight int) (width, height int) {

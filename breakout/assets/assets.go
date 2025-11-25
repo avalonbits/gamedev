@@ -18,9 +18,10 @@ import (
 var assets embed.FS
 
 var (
-	Paddle = load("paddle_blue.png")
-	Bricks = loadAll("bricks/*.png")
-	Levels = loadLevels("levels/*.txt")
+	Paddle            = load("paddle_blue.png")
+	Bricks            = loadAll("bricks/*.png")
+	Levels            = loadLevels("levels/*.txt")
+	DefaultBackground = load("default_background.png")
 )
 
 func load(name string) *ebiten.Image {
