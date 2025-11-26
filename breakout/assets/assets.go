@@ -18,6 +18,7 @@ import (
 var assets embed.FS
 
 var (
+	Ball              = load("ball_16x16.png")
 	Paddle            = load("paddle_blue.png")
 	Bricks            = loadAll("bricks/*.png")
 	Levels            = loadLevels("levels/*.txt")

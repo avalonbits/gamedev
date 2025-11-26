@@ -19,11 +19,13 @@ type Object interface {
 type ObjectFactory func(world *World) Object
 
 type World struct {
-	screenW int
-	screenH int
-	playW   int
-	margin  int
-	objects []Object
+	screenW        int
+	screenH        int
+	playW          int
+	margin         int
+	objects        []Object
+	availableSlots []int
+	next           int
 }
 
 func NewWorld(
@@ -32,22 +34,35 @@ func NewWorld(
 	screenH int,
 	playW int,
 	margin int,
-	objectFn ...ObjectFactory,
 ) *World {
 	ebiten.SetWindowTitle(title)
 	ebiten.SetWindowSize(screenW, screenH)
 
-	w := &World{
+	return &World{
 		screenW: screenW,
 		screenH: screenH,
 		playW:   playW,
 		margin:  margin,
 	}
-	for _, fn := range objectFn {
-		w.objects = append(w.objects, fn(w))
+}
+
+func (w *World) AppendObjects(obj Object) int {
+	w.objects = append(w.objects, obj)
+	return len(w.objects) - 1
+}
+
+func (w *World) AddObject(obj Object) int {
+	if w.next == len(w.availableSlots) {
+		w.next = 0
+		w.availableSlots = w.availableSlots[:0]
+		return w.AppendObjects(obj)
 	}
 
-	return w
+	idx := w.availableSlots[w.next]
+	w.objects[idx] = obj
+	w.next++
+
+	return idx
 }
 
 func (w *World) Width() int {

@@ -15,16 +15,12 @@ func main() {
 		720,
 		13*64,
 		16,
-		func(world *game.World) game.Object {
-			return objects.NewPlayArea(world, assets.DefaultBackground)
-		},
-		func(world *game.World) game.Object {
-			return objects.NewPaddle(world, assets.Paddle)
-		},
-		func(_ *game.World) game.Object {
-			return objects.NewBricks(assets.Levels, 16)
-		},
 	)
+
+	world.AddObject(objects.NewPlayArea(world, assets.DefaultBackground))
+	world.AddObject(objects.NewBricks(assets.Levels, 16))
+	world.AddObject(objects.NewBall(world, assets.Ball))
+	world.AddObject(objects.NewPaddle(world, assets.Paddle))
 
 	if err := ebiten.RunGame(world); err != nil {
 		panic(err)
