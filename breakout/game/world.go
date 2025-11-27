@@ -21,8 +21,6 @@ type ObjectFactory func(world *World) Object
 type World struct {
 	screenW        int
 	screenH        int
-	playW          int
-	margin         int
 	objects        []Object
 	availableSlots []int
 	next           int
@@ -32,8 +30,6 @@ func NewWorld(
 	title string,
 	screenW int,
 	screenH int,
-	playW int,
-	margin int,
 ) *World {
 	ebiten.SetWindowTitle(title)
 	ebiten.SetWindowSize(screenW, screenH)
@@ -41,8 +37,6 @@ func NewWorld(
 	return &World{
 		screenW: screenW,
 		screenH: screenH,
-		playW:   playW,
-		margin:  margin,
 	}
 }
 
@@ -69,16 +63,8 @@ func (w *World) Width() int {
 	return w.screenW
 }
 
-func (w *World) PlayWidth() int {
-	return w.playW
-}
-
 func (w *World) Height() int {
 	return w.screenH
-}
-
-func (w *World) Margin() int {
-	return w.margin
 }
 
 func (w *World) Update() error {

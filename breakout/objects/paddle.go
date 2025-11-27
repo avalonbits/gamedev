@@ -10,22 +10,24 @@ type Paddle struct {
 	sprite    *ebiten.Image
 	speed     float64
 	direction float64
+	playArea  *PlayArea
 }
 
-func NewPaddle(world *game.World, sprite *ebiten.Image) *Paddle {
+func NewPaddle(sprite *ebiten.Image, playArea *PlayArea) *Paddle {
 	bounds := sprite.Bounds()
 	halfW := float64(bounds.Dx()) / 2
 	halfH := float64(bounds.Dy()) / 2
 
 	position := vector{
-		X: float64(world.PlayWidth()/2+world.Margin()) - halfW,
-		Y: float64(world.Height()-world.Margin()-32) - halfH,
+		X: (playArea.Rect().Width/2 + playArea.Rect().X) - halfW,
+		Y: (playArea.Rect().MaxY() - 32) - halfH,
 	}
 
 	return &Paddle{
 		position:  position,
 		sprite:    sprite,
 		direction: 1.0,
+		playArea:  playArea,
 	}
 }
 
@@ -40,9 +42,10 @@ func (b *Paddle) Update(world *game.World) {
 		b.speed = max(0, b.speed-2)
 	}
 
-	paddleW := b.sprite.Bounds().Max.X - b.sprite.Bounds().Min.X
-	maxX := float64(world.PlayWidth() + world.Margin() - paddleW)
-	minX := float64(world.Margin())
+	rect := b.playArea.Rect()
+	paddleW := float64(b.sprite.Bounds().Dx())
+	maxX := rect.MaxX() - paddleW
+	minX := rect.X
 	b.position.X = max(minX, min(maxX, b.position.X+b.speed*b.direction))
 }
 

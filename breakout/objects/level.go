@@ -9,14 +9,14 @@ import (
 type Bricks struct {
 	levels    []assets.Level
 	currLevel int
-	margin    int
+	playArea  *PlayArea
 }
 
-func NewBricks(levels []assets.Level, margin int) *Bricks {
+func NewBricks(levels []assets.Level, playArea *PlayArea) *Bricks {
 	return &Bricks{
 		levels:    levels,
-		margin:    margin,
 		currLevel: 0,
+		playArea:  playArea,
 	}
 }
 
@@ -37,7 +37,8 @@ func (b *Bricks) Draw(display *ebiten.Image) {
 func (b *Bricks) drawBrick(display *ebiten.Image, brick assets.Brick) {
 	op := &ebiten.DrawImageOptions{}
 	x, y := brick.Position()
-	op.GeoM.Translate(float64(x+b.margin), float64(y+b.margin))
+	playArea := b.playArea.Rect()
+	op.GeoM.Translate(float64(x)+playArea.X, float64(y)+playArea.Y)
 	display.DrawImage(brick.Sprite(), op)
 }
 

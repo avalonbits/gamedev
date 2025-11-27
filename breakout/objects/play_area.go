@@ -10,10 +10,10 @@ type PlayArea struct {
 	margin float64
 }
 
-func NewPlayArea(world *game.World, sprite *ebiten.Image) *PlayArea {
+func NewPlayArea(margin float64, sprite *ebiten.Image) *PlayArea {
 	return &PlayArea{
 		sprite: sprite,
-		margin: float64(world.Margin()),
+		margin: margin,
 	}
 }
 
