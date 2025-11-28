@@ -30,7 +30,7 @@ func NewBall(sprite *ebiten.Image, playArea *PlayArea, paddle *Paddle, bricks *B
 	return &Ball{
 		sprite:   sprite,
 		position: position,
-		velocity: 4,
+		velocity: 5,
 		movement: vector{X: 0, Y: 1},
 		playArea: playArea,
 		paddle:   paddle,
@@ -49,15 +49,16 @@ func (b *Ball) Update(world *game.World) {
 }
 
 var paddleAngle = []float64{
+	7.5 * math.Pi / 180,
 	15 * math.Pi / 180,
 	30 * math.Pi / 180,
 	60 * math.Pi / 180,
-	60 * math.Pi / 180,
 	30 * math.Pi / 180,
 	15 * math.Pi / 180,
+	7.5 * math.Pi / 180,
 }
 var paddleAngleDirection = []float64{
-	-1, -1, -1, 1, 1, 1,
+	-1, 1, 1, 1, 1, 1, -1,
 }
 
 func (b *Ball) collidePaddle(ball game.Rect, paddle game.Rect) bool {
@@ -77,23 +78,23 @@ func (b *Ball) collidePaddle(ball game.Rect, paddle game.Rect) bool {
 	}
 
 	// Now that we know it collided, we need to determine the angle, which is a function of where
-	// the ball hit the paddle.
-	//
-	// The badlle will be devided in 6 segments.
-	// - 2-Middle: +-60 degrees
-	// - 2-outer:  +-30 degrees
-	// - 2-edge:   +-15 degrees
-	//
-	// all of them we add [0,2] degrees of jitter
+	// the ball hit the paddle + [0,2] degrees of jitter.
 
-	pos := ball.MaxX() - paddle.X
-	segmentSize := paddle.Width / 6
-	idx := int(min(5, pos/segmentSize))
+	segmentCount := float64(len(paddleAngle))
+	pos := ball.MaxX() - paddle.X - ball.Width/2 // center of the ball
+	segmentSize := paddle.Width / segmentCount
+
+	idx := int(min(segmentCount-1, pos/segmentSize))
 	angle := paddleAngle[idx] + rand.Float64()*2*math.Pi/180
 	dirX := paddleAngleDirection[idx]
 
+	currDirX := b.movement.X / math.Abs(b.movement.X)
+	if math.IsNaN(currDirX) {
+		currDirX = 1.0
+	}
+
 	b.movement = vector{
-		X: math.Cos(angle) * dirX,
+		X: currDirX * math.Cos(angle) * dirX,
 		Y: -math.Sin(angle),
 	}.Normalize()
 

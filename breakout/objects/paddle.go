@@ -33,13 +33,13 @@ func NewPaddle(sprite *ebiten.Image, playArea *PlayArea) *Paddle {
 
 func (b *Paddle) Update(world *game.World) {
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		b.speed = min(8, b.speed+1.5)
+		b.speed = 8
 		b.direction = -1.0
 	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		b.speed = min(8, b.speed+1.5)
+		b.speed = 8
 		b.direction = 1.0
 	} else {
-		b.speed = max(0, b.speed-2)
+		b.speed = 0
 	}
 
 	rect := b.playArea.Rect()

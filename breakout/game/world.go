@@ -33,6 +33,7 @@ func NewWorld(
 ) *World {
 	ebiten.SetWindowTitle(title)
 	ebiten.SetWindowSize(screenW, screenH)
+	ebiten.SetVsyncEnabled(true)
 
 	return &World{
 		screenW: screenW,
