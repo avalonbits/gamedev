@@ -18,13 +18,13 @@ func main() {
 	playArea := objects.NewPlayArea(16, assets.DefaultBackground)
 	world.AddObject(playArea)
 
-	bricks := objects.NewBricks(assets.Levels, playArea)
-	world.AddObject(bricks)
+	levels := objects.NewLevels(assets.Levels, playArea)
+	world.AddObject(levels)
 
 	paddle := objects.NewPaddle(assets.Paddle, playArea)
 	world.AddObject(paddle)
 
-	world.AddObject(objects.NewBall(assets.Ball, playArea, paddle, bricks))
+	world.AddObject(objects.NewBall(assets.Ball, playArea, paddle, levels))
 
 	if err := ebiten.RunGame(world); err != nil {
 		panic(err)

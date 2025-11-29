@@ -23,6 +23,10 @@ func (b *Brick) Update(world *game.World) {
 }
 
 func (b *Brick) Draw(display *ebiten.Image) {
+	if b.sprite == nil || b.hitCount <= 0 {
+		return
+	}
+
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(b.position.X, b.position.Y)
 	display.DrawImage(b.sprite, op)

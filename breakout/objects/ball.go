@@ -15,10 +15,10 @@ type Ball struct {
 	velocity float64
 	playArea *PlayArea
 	paddle   *Paddle
-	bricks   *Bricks
+	levels   *Levels
 }
 
-func NewBall(sprite *ebiten.Image, playArea *PlayArea, paddle *Paddle, bricks *Bricks) *Ball {
+func NewBall(sprite *ebiten.Image, playArea *PlayArea, paddle *Paddle, levels *Levels) *Ball {
 	bounds := sprite.Bounds()
 	halfW := float64(bounds.Dx()) / 2
 
@@ -34,6 +34,7 @@ func NewBall(sprite *ebiten.Image, playArea *PlayArea, paddle *Paddle, bricks *B
 		movement: vector{X: 0, Y: 1},
 		playArea: playArea,
 		paddle:   paddle,
+		levels:   levels,
 	}
 }
 
@@ -43,19 +44,20 @@ func (b *Ball) Update(world *game.World) {
 
 	collide := b.collidePaddle(ball, paddle)
 	collide = collide || b.collidePlayArea(ball, b.playArea.Rect())
+	collide = collide || b.collideBricks(ball)
 
 	b.position.X += (b.movement.X * b.velocity)
 	b.position.Y += (b.movement.Y * b.velocity)
 }
 
 var paddleAngle = []float64{
-	7.5 * math.Pi / 180,
-	15 * math.Pi / 180,
 	30 * math.Pi / 180,
+	45 * math.Pi / 180,
 	60 * math.Pi / 180,
+	80 * math.Pi / 180,
+	60 * math.Pi / 180,
+	45 * math.Pi / 180,
 	30 * math.Pi / 180,
-	15 * math.Pi / 180,
-	7.5 * math.Pi / 180,
 }
 var paddleAngleDirection = []float64{
 	-1, 1, 1, 1, 1, 1, -1,
@@ -112,6 +114,17 @@ func (b *Ball) collidePlayArea(ball game.Rect, playArea game.Rect) bool {
 	}
 
 	return collide
+}
+
+func (b *Ball) collideBricks(ball game.Rect) bool {
+	xhit, yhit := b.levels.HitBrick(ball)
+	if yhit {
+		b.movement.Y = -b.movement.Y
+	} else if xhit {
+		b.movement.X = -b.movement.X
+	}
+
+	return xhit || yhit
 }
 
 func (b *Ball) Draw(display *ebiten.Image) {
