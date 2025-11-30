@@ -24,7 +24,9 @@ func main() {
 	paddle := objects.NewPaddle(assets.Paddle, playArea)
 	world.AddObject(paddle)
 
-	world.AddObject(objects.NewBall(assets.Ball, playArea, paddle, levels))
+	world.AddObject(objects.NewBall(
+		assets.Ball, playArea, paddle, levels, assets.PingSE, assets.PongSE, assets.ClingSE,
+	))
 
 	if err := ebiten.RunGame(world); err != nil {
 		panic(err)

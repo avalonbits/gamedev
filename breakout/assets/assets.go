@@ -4,28 +4,70 @@ import (
 	"embed"
 	"fmt"
 	"image"
+	"io"
 	"io/fs"
 	"math"
 
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
+
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
 
-//go:embed *.png bricks/*.png levels/*.txt
+//go:embed *.png bricks/*.png levels/*.txt sounds/*.ogg
 var assets embed.FS
 
 var (
-	Ball              = load("ball_12x12.png")
-	Paddle            = load("paddle_blue.png")
-	Bricks            = loadAll("bricks/*.png")
+	Ball              = loadImage("ball_12x12.png")
+	Paddle            = loadImage("paddle_blue.png")
+	Bricks            = loadImages("bricks/*.png")
 	Levels            = loadLevels("levels/*.txt")
-	DefaultBackground = load("default_background.png")
+	DefaultBackground = loadImage("default_background.png")
+	PingSE            = loadSound("sounds/ping.ogg")
+	PongSE            = loadSound("sounds/pong.ogg")
+	ClingSE           = loadSound("sounds/cling.ogg")
 )
 
-func load(name string) *ebiten.Image {
+type SoundEffect struct {
+	player *audio.Player
+}
+
+func (se SoundEffect) Play() {
+	if err := se.player.Rewind(); err != nil {
+		panic(err)
+	}
+	se.player.Play()
+}
+
+var audioContext = audio.NewContext(44_100)
+
+func loadSound(name string) SoundEffect {
+	f, err := assets.Open(name)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	stream, err := vorbis.DecodeWithSampleRate(44_100, f)
+	if err != nil {
+		panic(err)
+	}
+	data, err := io.ReadAll(stream)
+	if err != nil {
+		panic(err)
+	}
+
+	player := audioContext.NewPlayerFromBytes(data)
+	fmt.Println(player)
+
+	return SoundEffect{player: player}
+}
+
+func loadImage(name string) *ebiten.Image {
 	f, err := assets.Open(name)
 	if err != nil {
 		panic(err)
@@ -40,7 +82,7 @@ func load(name string) *ebiten.Image {
 	return ebiten.NewImageFromImage(img)
 }
 
-func loadAll(pattern string) []*ebiten.Image {
+func loadImages(pattern string) []*ebiten.Image {
 	files, err := fs.Glob(assets, pattern)
 	if err != nil {
 		panic(err)
@@ -48,7 +90,7 @@ func loadAll(pattern string) []*ebiten.Image {
 
 	meteors := make([]*ebiten.Image, 0, len(files))
 	for _, file := range files {
-		meteors = append(meteors, load(file))
+		meteors = append(meteors, loadImage(file))
 	}
 
 	return meteors
@@ -133,7 +175,7 @@ func loadLevels(pattern string) []Level {
 }
 
 func parseBricks(content []byte) []Brick {
-	brickAssets := loadAll("bricks/*.png")
+	brickAssets := loadImages("bricks/*.png")
 
 	bricks := make([]Brick, 0, 13*13)
 	cIdx := 0

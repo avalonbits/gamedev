@@ -3,46 +3,69 @@ package objects
 import (
 	"math"
 	"math/rand/v2"
+	"time"
 
+	"github.com/avalonbits/gamedev/breakout/assets"
 	"github.com/avalonbits/gamedev/breakout/game"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Ball struct {
-	sprite   *ebiten.Image
-	position vector
-	movement vector
-	velocity float64
-	playArea *PlayArea
-	paddle   *Paddle
-	levels   *Levels
+	sprite     *ebiten.Image
+	position   vector
+	movement   vector
+	velocity   float64
+	playArea   *PlayArea
+	paddle     *Paddle
+	levels     *Levels
+	ping       assets.SoundEffect
+	pong       assets.SoundEffect
+	cling      assets.SoundEffect
+	speedTimer *game.Timer
 }
 
-func NewBall(sprite *ebiten.Image, playArea *PlayArea, paddle *Paddle, levels *Levels) *Ball {
+func NewBall(
+	sprite *ebiten.Image,
+	playArea *PlayArea,
+	paddle *Paddle,
+	levels *Levels,
+	ping assets.SoundEffect,
+	pong assets.SoundEffect,
+	cling assets.SoundEffect,
+) *Ball {
 	bounds := sprite.Bounds()
 	halfW := float64(bounds.Dx()) / 2
 
 	position := vector{
 		X: (playArea.Rect().Width/2 + playArea.Rect().X) - halfW,
-		Y: (playArea.Rect().MaxY() - 32) - 256,
+		Y: (playArea.Rect().MaxY() - 32) - 192,
 	}
 
 	return &Ball{
-		sprite:   sprite,
-		position: position,
-		velocity: 5,
-		movement: vector{X: 0, Y: 1},
-		playArea: playArea,
-		paddle:   paddle,
-		levels:   levels,
+		sprite:     sprite,
+		position:   position,
+		velocity:   5,
+		movement:   vector{X: 0, Y: 1},
+		playArea:   playArea,
+		paddle:     paddle,
+		levels:     levels,
+		ping:       ping,
+		pong:       pong,
+		cling:      cling,
+		speedTimer: game.NewTimer(30 * time.Second),
 	}
 }
 
 func (b *Ball) Update(world *game.World) {
-	paddle := b.paddle.Rect()
+	b.speedTimer.Update()
+	if b.speedTimer.IsReady() {
+		b.speedTimer.Reset()
+		b.velocity++
+	}
+
 	ball := b.Rect()
 
-	collide := b.collidePaddle(ball, paddle)
+	collide := b.collidePaddle()
 	collide = collide || b.collidePlayArea(ball, b.playArea.Rect())
 	collide = collide || b.collideBricks(ball)
 
@@ -51,19 +74,19 @@ func (b *Ball) Update(world *game.World) {
 }
 
 var paddleAngle = []float64{
-	30 * math.Pi / 180,
-	45 * math.Pi / 180,
-	60 * math.Pi / 180,
-	80 * math.Pi / 180,
-	60 * math.Pi / 180,
-	45 * math.Pi / 180,
-	30 * math.Pi / 180,
-}
-var paddleAngleDirection = []float64{
-	-1, 1, 1, 1, 1, 1, -1,
+	40 * math.Pi / 180,
+	50 * math.Pi / 180,
+	65 * math.Pi / 180,
+	85 * math.Pi / 180,
+	65 * math.Pi / 180,
+	50 * math.Pi / 180,
+	40 * math.Pi / 180,
 }
 
-func (b *Ball) collidePaddle(ball game.Rect, paddle game.Rect) bool {
+func (b *Ball) collidePaddle() bool {
+	ball := b.Rect()
+	paddle := b.paddle.Rect()
+
 	if b.movement.Y < 0 {
 		// We are already going up, no need to check collision
 		return false
@@ -88,17 +111,22 @@ func (b *Ball) collidePaddle(ball game.Rect, paddle game.Rect) bool {
 
 	idx := int(min(segmentCount-1, pos/segmentSize))
 	angle := paddleAngle[idx] + rand.Float64()*2*math.Pi/180
-	dirX := paddleAngleDirection[idx]
+	paddleDir := b.paddle.Direction()
 
-	currDirX := b.movement.X / math.Abs(b.movement.X)
-	if math.IsNaN(currDirX) {
-		currDirX = 1.0
+	dirX := 1.0
+	if b.movement.X < 0.0 {
+		dirX = -1.0
+	}
+	if paddleDir != 0 && dirX != paddleDir {
+		dirX = -dirX
 	}
 
 	b.movement = vector{
-		X: currDirX * math.Cos(angle) * dirX,
+		X: math.Cos(angle) * dirX,
 		Y: -math.Sin(angle),
-	}.Normalize()
+	}
+
+	b.ping.Play()
 
 	return true
 }
@@ -107,7 +135,7 @@ func (b *Ball) collidePlayArea(ball game.Rect, playArea game.Rect) bool {
 	collide := true
 	if ball.MaxX() >= playArea.MaxX() || ball.X <= playArea.X {
 		b.movement.X = -b.movement.X
-	} else if ball.Y <= playArea.Y {
+	} else if b.movement.Y < 0 && ball.Y <= playArea.Y {
 		b.movement.Y = -b.movement.Y
 	} else {
 		collide = false
@@ -117,11 +145,18 @@ func (b *Ball) collidePlayArea(ball game.Rect, playArea game.Rect) bool {
 }
 
 func (b *Ball) collideBricks(ball game.Rect) bool {
-	xhit, yhit := b.levels.HitBrick(ball)
+	hitCount, xhit, yhit := b.levels.HitBrick(ball)
 	if yhit {
 		b.movement.Y = -b.movement.Y
 	} else if xhit {
 		b.movement.X = -b.movement.X
+	}
+	if yhit || xhit {
+		if hitCount <= 0 {
+			b.pong.Play()
+		} else {
+			b.cling.Play()
+		}
 	}
 
 	return xhit || yhit

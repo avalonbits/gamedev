@@ -33,7 +33,7 @@ func NewLevels(levels []assets.Level, playArea *PlayArea) *Levels {
 
 	return &Levels{
 		levels:    brickLevels,
-		currLevel: 0,
+		currLevel: 1,
 		playArea:  playArea,
 	}
 }
@@ -48,10 +48,12 @@ func (l *Levels) Draw(display *ebiten.Image) {
 	}
 }
 
-func (l *Levels) HitBrick(ball game.Rect) (bool, bool) {
+func (l *Levels) HitBrick(ball game.Rect) (int, bool, bool) {
 	level := l.levels[l.currLevel]
 	changeX := false
 	changeY := false
+
+	var hitCount int
 	for _, brick := range level.bricks {
 		if brick.sprite == nil || brick.hitCount <= 0 {
 			continue
@@ -71,13 +73,14 @@ func (l *Levels) HitBrick(ball game.Rect) (bool, bool) {
 
 		// It's a hit!
 		brick.hitCount--
+		hitCount = brick.hitCount
 		changeX = !(ball.X >= bounds.X && ball.MaxX() <= bounds.MaxX())
 		changeY = !(ball.Y >= bounds.Y && ball.MaxY() <= bounds.MaxY())
 
 		break
 	}
 
-	return changeX, changeY
+	return hitCount, changeX, changeY
 }
 
 func (l *Levels) Rect() game.Rect {
