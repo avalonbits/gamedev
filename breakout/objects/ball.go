@@ -124,7 +124,7 @@ func (b *Ball) collidePaddle() bool {
 	b.movement = vector{
 		X: math.Cos(angle) * dirX,
 		Y: -math.Sin(angle),
-	}
+	}.Normalize()
 
 	b.ping.Play()
 
@@ -146,20 +146,28 @@ func (b *Ball) collidePlayArea(ball game.Rect, playArea game.Rect) bool {
 
 func (b *Ball) collideBricks(ball game.Rect) bool {
 	hitCount, xhit, yhit := b.levels.HitBrick(ball)
+	if !xhit && !yhit {
+		return false
+	}
+
+	if xhit && yhit {
+		xhit = math.Abs(b.movement.X) >= math.Abs(b.movement.Y)
+		yhit = !xhit
+	}
+
 	if yhit {
 		b.movement.Y = -b.movement.Y
 	} else if xhit {
 		b.movement.X = -b.movement.X
 	}
-	if yhit || xhit {
-		if hitCount <= 0 {
-			b.pong.Play()
-		} else {
-			b.cling.Play()
-		}
+
+	if hitCount == 0 {
+		b.pong.Play()
+	} else {
+		b.cling.Play()
 	}
 
-	return xhit || yhit
+	return true
 }
 
 func (b *Ball) Draw(display *ebiten.Image) {

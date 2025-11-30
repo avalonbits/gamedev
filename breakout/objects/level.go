@@ -55,7 +55,7 @@ func (l *Levels) HitBrick(ball game.Rect) (int, bool, bool) {
 
 	var hitCount int
 	for _, brick := range level.bricks {
-		if brick.sprite == nil || brick.hitCount <= 0 {
+		if brick.sprite == nil || brick.hitCount == 0 {
 			continue
 		}
 		bounds := brick.Rect()
@@ -76,6 +76,8 @@ func (l *Levels) HitBrick(ball game.Rect) (int, bool, bool) {
 		hitCount = brick.hitCount
 		changeX = !(ball.X >= bounds.X && ball.MaxX() <= bounds.MaxX())
 		changeY = !(ball.Y >= bounds.Y && ball.MaxY() <= bounds.MaxY())
+		if changeX && changeY {
+		}
 
 		break
 	}

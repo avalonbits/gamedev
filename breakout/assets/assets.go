@@ -2,7 +2,6 @@ package assets
 
 import (
 	"embed"
-	"fmt"
 	"image"
 	"io"
 	"io/fs"
@@ -62,7 +61,6 @@ func loadSound(name string) SoundEffect {
 	}
 
 	player := audioContext.NewPlayerFromBytes(data)
-	fmt.Println(player)
 
 	return SoundEffect{player: player}
 }
@@ -152,7 +150,6 @@ func (l *Level) Bricks() []Brick {
 }
 
 func loadLevels(pattern string) []Level {
-	fmt.Println("load levels")
 	files, err := fs.Glob(assets, pattern)
 	if err != nil {
 		panic(err)
@@ -195,9 +192,11 @@ func parseBricks(content []byte) []Brick {
 			var hitCount int
 			switch color {
 			case 0:
-				hitCount = math.MaxInt
+				hitCount = 0
 			case 6:
 				hitCount = 3
+			case 7:
+				hitCount = math.MaxInt
 			default:
 				hitCount = 1
 			}
