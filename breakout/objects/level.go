@@ -33,7 +33,7 @@ func NewLevels(levels []assets.Level, playArea *PlayArea) *Levels {
 
 	return &Levels{
 		levels:    brickLevels,
-		currLevel: 1,
+		currLevel: 0,
 		playArea:  playArea,
 	}
 }
