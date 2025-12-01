@@ -54,12 +54,9 @@ func (ms *MenuSelector) Update(world *game.World, stateFn func(game.State)) {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
-		ms.currY = (ms.currY + 1) % len(ms.nextY)
+		ms.currY = min(len(ms.nextY)-1, ms.currY+1)
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
-		ms.currY--
-		if ms.currY < 0 {
-			ms.currY = len(ms.nextY) - 1
-		}
+		ms.currY = max(0, ms.currY-1)
 	} else if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		ms.transition = game.NewTimer(3000 * time.Millisecond)
 	}
