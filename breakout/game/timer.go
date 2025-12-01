@@ -18,10 +18,11 @@ func NewTimer(d time.Duration) *Timer {
 	}
 }
 
-func (t *Timer) Update() {
+func (t *Timer) Update() int {
 	if t.currentTicks < t.targetTicks {
 		t.currentTicks++
 	}
+	return t.currentTicks
 }
 
 func (t *Timer) IsReady() bool {

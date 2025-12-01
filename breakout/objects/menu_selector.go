@@ -18,23 +18,25 @@ type MenuSelector struct {
 	nextState  func() game.State
 	startSong  *game.Timer
 	transition *game.Timer
+	drawSprite bool
 }
 
 func NewMenuSelector(selector *ebiten.Image, song assets.SoundEffect, nextState func() game.State) *MenuSelector {
 	return &MenuSelector{
-		position:  vector{X: 510, Y: 415},
-		sprite:    selector,
-		nextY:     []float64{0.0, 58.0, 116},
-		song:      song,
-		nextState: nextState,
-		startSong: game.NewTimer(500 * time.Millisecond),
+		position:   vector{X: 510, Y: 415},
+		sprite:     selector,
+		nextY:      []float64{0.0, 58.0, 116},
+		song:       song,
+		nextState:  nextState,
+		startSong:  game.NewTimer(500 * time.Millisecond),
+		drawSprite: true,
 	}
 }
 
 func (ms *MenuSelector) Update(world *game.World, stateFn func(game.State)) {
 	if ms.transition != nil {
-		ms.transition.Update()
-		ms.song.ChangeVolume(-0.011)
+		ms.song.ChangeVolume(-0.0055)
+		ms.drawSprite = ms.transition.Update()%30 < 15
 
 		if ms.transition.IsReady() {
 			ms.song.Stop()
@@ -59,11 +61,15 @@ func (ms *MenuSelector) Update(world *game.World, stateFn func(game.State)) {
 			ms.currY = len(ms.nextY) - 1
 		}
 	} else if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		ms.transition = game.NewTimer(1500 * time.Millisecond)
+		ms.transition = game.NewTimer(3000 * time.Millisecond)
 	}
 }
 
 func (ms *MenuSelector) Draw(display *ebiten.Image) {
+	if !ms.drawSprite {
+		return
+	}
+
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(ms.position.X, ms.position.Y+ms.nextY[ms.currY])
 	display.DrawImage(ms.sprite, op)
