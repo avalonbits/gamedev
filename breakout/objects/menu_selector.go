@@ -34,7 +34,7 @@ func NewMenuSelector(selector *ebiten.Image, song assets.SoundEffect, nextState 
 func (ms *MenuSelector) Update(world *game.World, stateFn func(game.State)) {
 	if ms.transition != nil {
 		ms.transition.Update()
-		ms.song.ChangeVolume(-0.02)
+		ms.song.ChangeVolume(-0.011)
 
 		if ms.transition.IsReady() {
 			ms.song.Stop()

@@ -77,6 +77,7 @@ func loadSound(name string) SoundEffect {
 	}
 
 	player := audioContext.NewPlayerFromBytes(data)
+	player.SetVolume(1.0)
 
 	return SoundEffect{player: player}
 }
