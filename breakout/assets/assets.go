@@ -21,6 +21,7 @@ import (
 var assets embed.FS
 
 var (
+	IntroSong         = loadSound("sounds/intro-song.ogg")
 	GameMenu          = loadImage("game-menu.png")
 	MenuSelector      = loadImage("ball.png")
 	Ball              = loadImage("ball_12x12.png")
@@ -42,6 +43,19 @@ func (se SoundEffect) Play() {
 		panic(err)
 	}
 	se.player.Play()
+}
+
+func (se SoundEffect) IsPlaying() bool {
+	return se.player.IsPlaying()
+}
+
+func (se SoundEffect) ChangeVolume(inc float64) {
+	next := max(0.0, min(1.0, inc+se.player.Volume()))
+	se.player.SetVolume(next)
+}
+
+func (se SoundEffect) Stop() {
+	se.player.Pause()
 }
 
 var audioContext = audio.NewContext(44_100)

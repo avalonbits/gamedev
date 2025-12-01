@@ -53,7 +53,7 @@ func NewGame() game.State {
 	}
 	g.nextState = g
 
-	return g
+	return &g
 }
 
 type Menu struct {
@@ -65,11 +65,11 @@ func NewMenu() game.State {
 		main: &main{
 			objects: []Object{
 				objects.NewMenu(assets.GameMenu),
-				objects.NewMenuSelector(assets.MenuSelector, NewGame),
+				objects.NewMenuSelector(assets.MenuSelector, assets.IntroSong, NewGame),
 			},
 		},
 	}
 	menu.nextState = menu
 
-	return menu
+	return &menu
 }
