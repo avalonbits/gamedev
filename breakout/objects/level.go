@@ -38,7 +38,7 @@ func NewLevels(levels []assets.Level, playArea *PlayArea) *Levels {
 	}
 }
 
-func (l *Levels) Update(world *game.World) {
+func (l *Levels) Update(world *game.World, stateFn func(game.State)) {
 }
 
 func (l *Levels) Draw(display *ebiten.Image) {
@@ -48,7 +48,7 @@ func (l *Levels) Draw(display *ebiten.Image) {
 	}
 }
 
-func (l *Levels) HitBrick(ball game.Rect) (int, bool, bool) {
+func (l *Levels) HitBrick(ball rect) (int, bool, bool) {
 	level := l.levels[l.currLevel]
 	changeX := false
 	changeY := false
@@ -85,10 +85,6 @@ func (l *Levels) HitBrick(ball game.Rect) (int, bool, bool) {
 	return hitCount, changeX, changeY
 }
 
-func (l *Levels) Rect() game.Rect {
-	return game.Rect{}
-}
-
-func (l *Levels) Intersects(bounds game.Bounds) bool {
-	return false
+func (l *Levels) Rect() rect {
+	return rect{}
 }

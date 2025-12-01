@@ -56,7 +56,7 @@ func NewBall(
 	}
 }
 
-func (b *Ball) Update(world *game.World) {
+func (b *Ball) Update(world *game.World, stateFn func(game.State)) {
 	b.speedTimer.Update()
 	if b.speedTimer.IsReady() {
 		b.speedTimer.Reset()
@@ -131,7 +131,7 @@ func (b *Ball) collidePaddle() bool {
 	return true
 }
 
-func (b *Ball) collidePlayArea(ball game.Rect, playArea game.Rect) bool {
+func (b *Ball) collidePlayArea(ball rect, playArea rect) bool {
 	collide := true
 	if ball.MaxX() >= playArea.MaxX() || ball.X <= playArea.X {
 		b.movement.X = -b.movement.X
@@ -144,7 +144,7 @@ func (b *Ball) collidePlayArea(ball game.Rect, playArea game.Rect) bool {
 	return collide
 }
 
-func (b *Ball) collideBricks(ball game.Rect) bool {
+func (b *Ball) collideBricks(ball rect) bool {
 	hitCount, xhit, yhit := b.levels.HitBrick(ball)
 	if !xhit && !yhit {
 		return false
@@ -176,17 +176,13 @@ func (b *Ball) Draw(display *ebiten.Image) {
 	display.DrawImage(b.sprite, op)
 }
 
-func (b *Ball) Rect() game.Rect {
+func (b *Ball) Rect() rect {
 	bounds := b.sprite.Bounds()
 
-	return game.NewRect(
+	return NewRect(
 		b.position.X,
 		b.position.Y,
 		float64(bounds.Dx()),
 		float64(bounds.Dy()),
 	)
-}
-
-func (b *Ball) Intersects(bounds game.Bounds) bool {
-	return b.Rect().Intersects(bounds.Rect())
 }

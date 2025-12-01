@@ -32,17 +32,13 @@ func (b *Brick) Draw(display *ebiten.Image) {
 	display.DrawImage(b.sprite, op)
 }
 
-func (b *Brick) Rect() game.Rect {
+func (b *Brick) Rect() rect {
 	bounds := b.sprite.Bounds()
 
-	return game.NewRect(
+	return NewRect(
 		b.position.X,
 		b.position.Y,
 		float64(bounds.Dx()),
 		float64(bounds.Dy()),
 	)
-}
-
-func (b *Brick) Intersects(bounds game.Bounds) bool {
-	return b.Rect().Intersects(bounds.Rect())
 }

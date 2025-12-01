@@ -21,6 +21,8 @@ import (
 var assets embed.FS
 
 var (
+	GameMenu          = loadImage("game-menu.png")
+	MenuSelector      = loadImage("ball.png")
 	Ball              = loadImage("ball_12x12.png")
 	Paddle            = loadImage("paddle_blue.png")
 	Bricks            = loadImages("bricks/*.png")

@@ -17,7 +17,7 @@ func NewPlayArea(margin float64, sprite *ebiten.Image) *PlayArea {
 	}
 }
 
-func (pa *PlayArea) Update(world *game.World) {
+func (pa *PlayArea) Update(world *game.World, stateFn func(game.State)) {
 }
 
 func (pa *PlayArea) Draw(display *ebiten.Image) {
@@ -26,17 +26,13 @@ func (pa *PlayArea) Draw(display *ebiten.Image) {
 	display.DrawImage(pa.sprite, op)
 }
 
-func (pa *PlayArea) Rect() game.Rect {
+func (pa *PlayArea) Rect() rect {
 	bounds := pa.sprite.Bounds()
 
-	return game.NewRect(
+	return NewRect(
 		pa.margin,
 		pa.margin,
 		float64(bounds.Dx()),
 		float64(bounds.Dy()),
 	)
-}
-
-func (pa *PlayArea) Intersects(bounds game.Bounds) bool {
-	return pa.Rect().Intersects(bounds.Rect())
 }

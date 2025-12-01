@@ -4,24 +4,17 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type Bounds interface {
-	Rect() Rect
-	Intersects(Bounds) bool
-}
-
-type Object interface {
-	Bounds
-
-	Update(world *World)
+type State interface {
+	Update(world *World) State
 	Draw(*ebiten.Image)
 }
 
-type ObjectFactory func(world *World) Object
+type StateFactory func(world *World) State
 
 type World struct {
 	screenW        int
 	screenH        int
-	objects        []Object
+	state          State
 	availableSlots []int
 	next           int
 }
@@ -41,23 +34,8 @@ func NewWorld(
 	}
 }
 
-func (w *World) AppendObjects(obj Object) int {
-	w.objects = append(w.objects, obj)
-	return len(w.objects) - 1
-}
-
-func (w *World) AddObject(obj Object) int {
-	if w.next == len(w.availableSlots) {
-		w.next = 0
-		w.availableSlots = w.availableSlots[:0]
-		return w.AppendObjects(obj)
-	}
-
-	idx := w.availableSlots[w.next]
-	w.objects[idx] = obj
-	w.next++
-
-	return idx
+func (w *World) SetState(state State) {
+	w.state = state
 }
 
 func (w *World) Width() int {
@@ -69,17 +47,12 @@ func (w *World) Height() int {
 }
 
 func (w *World) Update() error {
-	for _, obj := range w.objects {
-		obj.Update(w)
-	}
+	w.state = w.state.Update(w)
 	return nil
-
 }
 
-func (w *World) Draw(screen *ebiten.Image) {
-	for _, obj := range w.objects {
-		obj.Draw(screen)
-	}
+func (w *World) Draw(display *ebiten.Image) {
+	w.state.Draw(display)
 }
 
 func (w *World) Layout(outsideWidth, outsideHeight int) (width, height int) {

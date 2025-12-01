@@ -35,7 +35,7 @@ func (b *Paddle) Direction() float64 {
 	return b.direction
 }
 
-func (b *Paddle) Update(world *game.World) {
+func (b *Paddle) Update(world *game.World, stateFn func(game.State)) {
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 		b.speed = 9
 		b.direction = -1.0
@@ -60,17 +60,13 @@ func (b *Paddle) Draw(display *ebiten.Image) {
 	display.DrawImage(b.sprite, op)
 }
 
-func (b *Paddle) Rect() game.Rect {
+func (b *Paddle) Rect() rect {
 	bounds := b.sprite.Bounds()
 
-	return game.NewRect(
+	return NewRect(
 		b.position.X,
 		b.position.Y,
 		float64(bounds.Dx()),
 		float64(bounds.Dy()),
 	)
-}
-
-func (b *Paddle) Intersects(bounds game.Bounds) bool {
-	return b.Rect().Intersects(bounds.Rect())
 }
