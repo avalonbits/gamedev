@@ -2,11 +2,14 @@ package game
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type State interface {
 	Update(world *World) State
 	Draw(*ebiten.Image)
+	Next(state State)
+	Reset()
 }
 
 type StateFactory func(world *World) State
@@ -17,6 +20,8 @@ type World struct {
 	state          State
 	availableSlots []int
 	next           int
+	gamepads       []ebiten.GamepadID
+	buttons        []ebiten.StandardGamepadButton
 }
 
 func NewWorld(
@@ -28,10 +33,13 @@ func NewWorld(
 	ebiten.SetWindowSize(screenW, screenH)
 	ebiten.SetVsyncEnabled(true)
 
-	return &World{
-		screenW: screenW,
-		screenH: screenH,
+	w := &World{
+		screenW:  screenW,
+		screenH:  screenH,
+		gamepads: make([]ebiten.GamepadID, 0, 8),
+		buttons:  make([]ebiten.StandardGamepadButton, 0, ebiten.StandardGamepadButtonMax),
 	}
+	return w
 }
 
 func (w *World) SetState(state State) {
@@ -46,7 +54,15 @@ func (w *World) Height() int {
 	return w.screenH
 }
 
+func (w *World) Gamepad() ebiten.GamepadID {
+	if len(w.gamepads) == 0 {
+		return 0
+	}
+	return w.gamepads[0]
+}
+
 func (w *World) Update() error {
+	w.gamepads = inpututil.AppendJustConnectedGamepadIDs(w.gamepads[:0])
 	w.state = w.state.Update(w)
 	return nil
 }
@@ -57,4 +73,46 @@ func (w *World) Draw(display *ebiten.Image) {
 
 func (w *World) Layout(outsideWidth, outsideHeight int) (width, height int) {
 	return w.screenW, w.screenH
+}
+
+func (w *World) PressLeft() bool {
+	return ebiten.IsKeyPressed(ebiten.KeyLeft) ||
+		ebiten.IsStandardGamepadButtonPressed(w.Gamepad(), ebiten.StandardGamepadButtonLeftLeft)
+}
+
+func (w *World) PressRight() bool {
+	return ebiten.IsKeyPressed(ebiten.KeyRight) ||
+		ebiten.IsStandardGamepadButtonPressed(w.Gamepad(), ebiten.StandardGamepadButtonLeftRight)
+}
+
+func (w *World) JustPressedUp() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyUp) ||
+		inpututil.IsStandardGamepadButtonJustPressed(w.Gamepad(), ebiten.StandardGamepadButtonLeftTop)
+}
+
+func (w *World) JustPressedDown() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyDown) ||
+		inpututil.IsStandardGamepadButtonJustPressed(w.Gamepad(), ebiten.StandardGamepadButtonLeftBottom)
+}
+
+var actionButtons = map[ebiten.StandardGamepadButton]bool{
+	ebiten.StandardGamepadButtonRightTop:    true,
+	ebiten.StandardGamepadButtonRightLeft:   true,
+	ebiten.StandardGamepadButtonRightRight:  true,
+	ebiten.StandardGamepadButtonRightBottom: true,
+}
+
+func (w *World) JustPressedAction() bool {
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		return true
+	}
+
+	w.buttons = inpututil.AppendJustPressedStandardGamepadButtons(w.Gamepad(), w.buttons[:0])
+	for _, button := range w.buttons {
+		if actionButtons[button] {
+			return true
+		}
+	}
+
+	return false
 }

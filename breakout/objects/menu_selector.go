@@ -6,7 +6,6 @@ import (
 	"github.com/avalonbits/gamedev/breakout/assets"
 	"github.com/avalonbits/gamedev/breakout/game"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type MenuSelector struct {
@@ -22,6 +21,7 @@ type MenuSelector struct {
 }
 
 func NewMenuSelector(selector *ebiten.Image, song assets.SoundEffect, nextState func() game.State) *MenuSelector {
+	song.ChangeVolume(1.0)
 	return &MenuSelector{
 		position:   vector{X: 510, Y: 415},
 		sprite:     selector,
@@ -33,14 +33,14 @@ func NewMenuSelector(selector *ebiten.Image, song assets.SoundEffect, nextState 
 	}
 }
 
-func (ms *MenuSelector) Update(world *game.World, stateFn func(game.State)) {
+func (ms *MenuSelector) Update(world *game.World, state game.State) {
 	if ms.transition != nil {
 		ms.song.ChangeVolume(-0.0055)
 		ms.drawSprite = ms.transition.Update()%30 < 15
 
 		if ms.transition.IsReady() {
 			ms.song.Stop()
-			stateFn(ms.nextState())
+			state.Next(ms.nextState())
 
 			return
 		}
@@ -53,13 +53,16 @@ func (ms *MenuSelector) Update(world *game.World, stateFn func(game.State)) {
 		}
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
+	if world.JustPressedDown() {
 		ms.currY = min(len(ms.nextY)-1, ms.currY+1)
-	} else if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
+	} else if world.JustPressedUp() {
 		ms.currY = max(0, ms.currY-1)
-	} else if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+	} else if world.JustPressedAction() {
 		ms.transition = game.NewTimer(3000 * time.Millisecond)
 	}
+}
+
+func (ms *MenuSelector) Reset() {
 }
 
 func (ms *MenuSelector) Draw(display *ebiten.Image) {

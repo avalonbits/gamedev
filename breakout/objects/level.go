@@ -38,7 +38,15 @@ func NewLevels(levels []assets.Level, playArea *PlayArea) *Levels {
 	}
 }
 
-func (l *Levels) Update(world *game.World, stateFn func(game.State)) {
+func (l *Levels) Reset() {
+}
+
+func (l *Levels) Next() bool {
+	l.currLevel++
+	return l.currLevel < len(l.levels)
+}
+
+func (l *Levels) Update(world *game.World, _ game.State) {
 }
 
 func (l *Levels) Draw(display *ebiten.Image) {
@@ -48,16 +56,20 @@ func (l *Levels) Draw(display *ebiten.Image) {
 	}
 }
 
-func (l *Levels) HitBrick(ball rect) (int, bool, bool) {
+func (l *Levels) HitBrick(ball rect) (hits int, changeX bool, changeY bool, levelOver bool) {
 	level := l.levels[l.currLevel]
-	changeX := false
-	changeY := false
 
 	var hitCount int
+	var remainingHits int
 	for _, brick := range level.bricks {
-		if brick.sprite == nil || brick.hitCount == 0 {
+		if brick.hitCount > 0 {
+			remainingHits++
+		}
+
+		if brick.hitCount == 0 {
 			continue
 		}
+
 		bounds := brick.Rect()
 		v1 := ball.MaxY() >= bounds.Y && ball.MaxY() <= bounds.MaxY()
 		v2 := ball.Y >= bounds.Y && ball.Y < bounds.MaxY()
@@ -76,13 +88,12 @@ func (l *Levels) HitBrick(ball rect) (int, bool, bool) {
 		hitCount = brick.hitCount
 		changeX = !(ball.X >= bounds.X && ball.MaxX() <= bounds.MaxX())
 		changeY = !(ball.Y >= bounds.Y && ball.MaxY() <= bounds.MaxY())
-		if changeX && changeY {
-		}
 
 		break
 	}
+	levelOver = remainingHits == 0
 
-	return hitCount, changeX, changeY
+	return hitCount, changeX, changeY, levelOver
 }
 
 func (l *Levels) Rect() rect {

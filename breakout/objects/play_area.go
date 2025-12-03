@@ -17,7 +17,10 @@ func NewPlayArea(margin float64, sprite *ebiten.Image) *PlayArea {
 	}
 }
 
-func (pa *PlayArea) Update(world *game.World, stateFn func(game.State)) {
+func (pa *PlayArea) Update(world *game.World, _ game.State) {
+}
+
+func (pa *PlayArea) Reset() {
 }
 
 func (pa *PlayArea) Draw(display *ebiten.Image) {

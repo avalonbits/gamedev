@@ -8,30 +8,42 @@ import (
 )
 
 type Object interface {
-	Update(*game.World, func(game.State))
+	Update(*game.World, game.State)
 	Draw(*ebiten.Image)
+	Reset()
 }
 
 type main struct {
 	objects   []Object
 	nextState game.State
+	reset     bool
 }
 
 func (m *main) Update(world *game.World) game.State {
 	for _, obj := range m.objects {
-		obj.Update(world, m.SetState)
+		obj.Update(world, m)
+	}
+	if m.reset {
+		m.reset = false
+		for _, obj := range m.objects {
+			obj.Reset()
+		}
 	}
 	return m.nextState
-}
-
-func (m *main) SetState(st game.State) {
-	m.nextState = st
 }
 
 func (m *main) Draw(display *ebiten.Image) {
 	for _, obj := range m.objects {
 		obj.Draw(display)
 	}
+}
+
+func (m *main) Next(state game.State) {
+	m.nextState = state
+}
+
+func (m *main) Reset() {
+	m.reset = true
 }
 
 type Game struct {
@@ -43,7 +55,7 @@ func NewGame() game.State {
 	levels := objects.NewLevels(assets.Levels, playArea)
 	paddle := objects.NewPaddle(assets.Paddle, playArea)
 	ball := objects.NewBall(
-		assets.Ball, playArea, paddle, levels, assets.PingSE, assets.PongSE, assets.ClingSE,
+		assets.Ball, playArea, paddle, levels, assets.PingSE, assets.PongSE, assets.ClingSE, NewMenu,
 	)
 
 	g := Game{

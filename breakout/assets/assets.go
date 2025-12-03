@@ -5,7 +5,6 @@ import (
 	"image"
 	"io"
 	"io/fs"
-	"math"
 
 	_ "image/png"
 
@@ -213,7 +212,7 @@ func parseBricks(content []byte) []Brick {
 			case 6:
 				hitCount = 3
 			case 7:
-				hitCount = math.MaxInt
+				hitCount = -1
 			default:
 				hitCount = 1
 			}

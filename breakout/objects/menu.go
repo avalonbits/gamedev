@@ -16,7 +16,10 @@ func NewMenu(background *ebiten.Image) *Menu {
 	}
 }
 
-func (m *Menu) Update(world *game.World, stateFn func(game.State)) {
+func (m *Menu) Update(world *game.World, _ game.State) {
+}
+
+func (m *Menu) Reset() {
 }
 
 func (m *Menu) Draw(display *ebiten.Image) {

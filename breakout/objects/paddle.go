@@ -23,23 +23,40 @@ func NewPaddle(sprite *ebiten.Image, playArea *PlayArea) *Paddle {
 		Y: (playArea.Rect().MaxY() - 32) - halfH,
 	}
 
-	return &Paddle{
-		position:  position,
-		sprite:    sprite,
-		direction: 1.0,
-		playArea:  playArea,
+	p := &Paddle{
+		position: position,
+		sprite:   sprite,
+		playArea: playArea,
 	}
+	p.Reset()
+
+	return p
+}
+
+func (p *Paddle) Reset() {
+	bounds := p.sprite.Bounds()
+	halfW := float64(bounds.Dx()) / 2
+	halfH := float64(bounds.Dy()) / 2
+
+	position := vector{
+		X: (p.playArea.Rect().Width/2 + p.playArea.Rect().X) - halfW,
+		Y: (p.playArea.Rect().MaxY() - 32) - halfH,
+	}
+
+	p.position = position
+	p.direction = 0.0
+
 }
 
 func (b *Paddle) Direction() float64 {
 	return b.direction
 }
 
-func (b *Paddle) Update(world *game.World, stateFn func(game.State)) {
-	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
+func (b *Paddle) Update(world *game.World, state game.State) {
+	if world.PressLeft() {
 		b.speed = 9
 		b.direction = -1.0
-	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
+	} else if world.PressRight() {
 		b.speed = 9
 		b.direction = 1.0
 	} else {

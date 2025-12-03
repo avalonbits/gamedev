@@ -19,11 +19,14 @@ func NewBrick(x, y, hitCount int, sprite *ebiten.Image) *Brick {
 	}
 }
 
+func (b *Brick) Reset() {
+}
+
 func (b *Brick) Update(world *game.World) {
 }
 
 func (b *Brick) Draw(display *ebiten.Image) {
-	if b.sprite == nil || b.hitCount <= 0 {
+	if b.hitCount == 0 {
 		return
 	}
 
