@@ -55,6 +55,7 @@ func (w *World) Height() int {
 }
 
 func (w *World) Gamepad() ebiten.GamepadID {
+	w.gamepads = inpututil.AppendJustConnectedGamepadIDs(w.gamepads[:0])
 	if len(w.gamepads) == 0 {
 		return 0
 	}
@@ -62,7 +63,6 @@ func (w *World) Gamepad() ebiten.GamepadID {
 }
 
 func (w *World) Update() error {
-	w.gamepads = inpututil.AppendJustConnectedGamepadIDs(w.gamepads[:0])
 	w.state = w.state.Update(w)
 	return nil
 }
@@ -115,4 +115,13 @@ func (w *World) JustPressedAction() bool {
 	}
 
 	return false
+}
+
+func (w *World) HorizontalAxis() float64 {
+	value := ebiten.StandardGamepadAxisValue(w.Gamepad(), ebiten.StandardGamepadAxisLeftStickHorizontal)
+	if value <= -0.1 || value >= 0.1 {
+		return value
+	} else {
+		return 0.0
+	}
 }
