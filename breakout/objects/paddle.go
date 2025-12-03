@@ -27,6 +27,7 @@ func NewPaddle(sprite *ebiten.Image, playArea *PlayArea) *Paddle {
 		position: position,
 		sprite:   sprite,
 		playArea: playArea,
+		speed:    9.0,
 	}
 	p.Reset()
 
@@ -54,16 +55,12 @@ func (b *Paddle) Direction() float64 {
 
 func (b *Paddle) Update(world *game.World, state game.State) {
 	if dir := world.HorizontalAxis(); dir != 0.0 {
-		b.speed = 9
 		b.direction = dir
 	} else if world.PressLeft() {
-		b.speed = 9
 		b.direction = -1.0
 	} else if world.PressRight() {
-		b.speed = 9
 		b.direction = 1.0
 	} else {
-		b.speed = 0.0
 		b.direction = 0.0
 	}
 
