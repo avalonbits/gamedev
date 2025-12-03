@@ -87,12 +87,16 @@ func (w *World) PressRight() bool {
 
 func (w *World) JustPressedUp() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeyUp) ||
-		inpututil.IsStandardGamepadButtonJustPressed(w.Gamepad(), ebiten.StandardGamepadButtonLeftTop)
+		inpututil.IsStandardGamepadButtonJustPressed(w.Gamepad(), ebiten.StandardGamepadButtonLeftTop) ||
+		w.VerticalAxis() <= -1.0
+
 }
 
 func (w *World) JustPressedDown() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeyDown) ||
-		inpututil.IsStandardGamepadButtonJustPressed(w.Gamepad(), ebiten.StandardGamepadButtonLeftBottom)
+		inpututil.IsStandardGamepadButtonJustPressed(w.Gamepad(), ebiten.StandardGamepadButtonLeftBottom) ||
+		w.VerticalAxis() >= 1.0
+
 }
 
 var actionButtons = map[ebiten.StandardGamepadButton]bool{
@@ -119,6 +123,15 @@ func (w *World) JustPressedAction() bool {
 
 func (w *World) HorizontalAxis() float64 {
 	value := ebiten.StandardGamepadAxisValue(w.Gamepad(), ebiten.StandardGamepadAxisLeftStickHorizontal)
+	if value <= -0.1 || value >= 0.1 {
+		return value
+	} else {
+		return 0.0
+	}
+}
+
+func (w *World) VerticalAxis() float64 {
+	value := ebiten.StandardGamepadAxisValue(w.Gamepad(), ebiten.StandardGamepadAxisLeftStickVertical)
 	if value <= -0.1 || value >= 0.1 {
 		return value
 	} else {
